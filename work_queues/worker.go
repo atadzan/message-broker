@@ -1,8 +1,10 @@
 package main
 
 import (
+	"bytes"
 	"github.com/atadzan/message-broker/helpers"
 	"log"
+	"time"
 )
 
 func main() {
@@ -14,7 +16,6 @@ func main() {
 
 	q := helpers.NewQueue(ch)
 
-	// Consuming messages
 	msgs, err := ch.Consume(
 		q.Name,
 		"",
@@ -30,10 +31,13 @@ func main() {
 
 	go func() {
 		for d := range msgs {
-			log.Printf("Received a message: %s\n", d.Body)
+			log.Printf("Received a message: %s", d.Body)
+			dotCount := bytes.Count(d.Body, []byte("."))
+			t := time.Duration(dotCount)
+			time.Sleep(t * time.Second)
+			log.Println("Done")
 		}
 	}()
-
-	log.Printf("[*] Waiting for messages. To exit press CTRL+C\n")
+	log.Println(" [*] Waiting for messages. To exit press CTRL+C")
 	<-forever
 }
